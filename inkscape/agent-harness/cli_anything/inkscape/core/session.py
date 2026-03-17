@@ -7,6 +7,32 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 
 
+def _locked_save_json(path, data, **dump_kwargs) -> None:
+    """Atomically write JSON with exclusive file locking."""
+    try:
+        f = open(path, "r+")
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        f = open(path, "w")
+    with f:
+        _locked = False
+        try:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            _locked = True
+        except (ImportError, OSError):
+            pass
+        try:
+            f.seek(0)
+            f.truncate()
+            json.dump(data, f, **dump_kwargs)
+            f.flush()
+        finally:
+            if _locked:
+                import fcntl
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+
 class Session:
     """Manages project state with undo/redo history."""
 
@@ -110,9 +136,7 @@ class Session:
             raise ValueError("No save path specified.")
 
         self.project["metadata"]["modified"] = datetime.now().isoformat()
-        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
-        with open(save_path, "w") as f:
-            json.dump(self.project, f, indent=2, sort_keys=True, default=str)
+        _locked_save_json(save_path, self.project, indent=2, sort_keys=True, default=str)
 
         self.project_path = save_path
         self._modified = False

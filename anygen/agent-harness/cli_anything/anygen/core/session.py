@@ -1,9 +1,36 @@
 """Session management — undo/redo and command history for AnyGen CLI."""
 
 import json
+import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def _locked_save_json(path, data, **dump_kwargs) -> None:
+    """Atomically write JSON with exclusive file locking."""
+    try:
+        f = open(path, "r+")
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        f = open(path, "w")
+    with f:
+        _locked = False
+        try:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            _locked = True
+        except (ImportError, OSError):
+            pass
+        try:
+            f.seek(0)
+            f.truncate()
+            json.dump(data, f, **dump_kwargs)
+            f.flush()
+        finally:
+            if _locked:
+                import fcntl
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
 
 @dataclass
@@ -101,9 +128,7 @@ class Session:
             "history": [e.to_dict() for e in self._history],
             "redo_stack": [e.to_dict() for e in self._redo_stack],
         }
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
-            json.dump(data, f, indent=2, sort_keys=True, default=str)
+        _locked_save_json(path, data, indent=2, sort_keys=True, default=str)
 
     def _load(self, path: str):
         p = Path(path)
