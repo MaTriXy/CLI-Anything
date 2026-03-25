@@ -326,6 +326,20 @@
       "category": "devops",
       "contributor": "voidfreud",
       "contributor_url": "https://github.com/voidfreud"
+    },
+    {
+      "name": "godot",
+      "display_name": "Godot Engine",
+      "version": "1.0.0",
+      "description": "Game engine project management, scene editing, export and GDScript execution via Godot 4 headless mode",
+      "requires": "Godot 4.x (godotengine.org)",
+      "homepage": "https://godotengine.org",
+      "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=godot/agent-harness",
+      "entry_point": "cli-anything-godot",
+      "skill_md": "godot/agent-harness/cli_anything/godot/skills/SKILL.md",
+      "category": "gamedev",
+      "contributor": "sehawq",
+      "contributor_url": "https://github.com/sehawq"
     }
   ]
 }
