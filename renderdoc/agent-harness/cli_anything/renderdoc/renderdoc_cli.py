@@ -31,17 +31,20 @@ import click
 # ---------------------------------------------------------------------------
 
 _capture_handle = None  # type: ignore
+_capture_handle_path = None  # type: ignore
 _repl_mode = False
 
 
 def _close_all_captures():
-    global _capture_handle, _capture_handle_b
+    global _capture_handle, _capture_handle_b, _capture_handle_path, _capture_handle_b_path
     if _capture_handle is not None:
         _capture_handle.close()
         _capture_handle = None
+        _capture_handle_path = None
     if _capture_handle_b is not None:
         _capture_handle_b.close()
         _capture_handle_b = None
+        _capture_handle_b_path = None
 
 
 def _get_export_dir(ctx: click.Context, subfolder: str = "") -> str:
@@ -62,18 +65,24 @@ def _get_export_dir(ctx: click.Context, subfolder: str = "") -> str:
 
 def _get_handle(ctx: click.Context):
     """Return the active CaptureHandle, opening it if needed."""
-    global _capture_handle
-    if _capture_handle is not None:
-        return _capture_handle
+    global _capture_handle, _capture_handle_path
     path = ctx.obj.get("capture_path")
     if not path:
         click.echo("Error: No capture file specified. Use --capture <path>", err=True)
         ctx.exit(1)
+    path_abs = os.path.abspath(path)
+    if _capture_handle is not None:
+        if _capture_handle_path == path_abs:
+            return _capture_handle
+        _capture_handle.close()
+        _capture_handle = None
+        _capture_handle_path = None
     from cli_anything.renderdoc.core.capture import CaptureHandle
     from cli_anything.renderdoc.utils.errors import handle_error
 
     try:
         _capture_handle = CaptureHandle(path)
+        _capture_handle_path = path_abs
     except Exception as e:
         debug = ctx.obj.get("debug", False)
         err = handle_error(e, debug=debug)
@@ -694,18 +703,25 @@ def counters_fetch(ctx, ids):
 
 # Secondary capture handle for diff B-side
 _capture_handle_b = None  # type: ignore
+_capture_handle_b_path = None  # type: ignore
 
 
 def _get_handle_b(ctx: click.Context, path: str):
     """Open a second capture file for the B-side of a diff."""
-    global _capture_handle_b
+    global _capture_handle_b, _capture_handle_b_path
+    path_abs = os.path.abspath(path)
     if _capture_handle_b is not None:
-        return _capture_handle_b
+        if _capture_handle_b_path == path_abs:
+            return _capture_handle_b
+        _capture_handle_b.close()
+        _capture_handle_b = None
+        _capture_handle_b_path = None
     from cli_anything.renderdoc.core.capture import CaptureHandle
     from cli_anything.renderdoc.utils.errors import handle_error
 
     try:
         _capture_handle_b = CaptureHandle(path)
+        _capture_handle_b_path = path_abs
     except Exception as e:
         debug = ctx.obj.get("debug", False)
         err = handle_error(e, debug=debug)

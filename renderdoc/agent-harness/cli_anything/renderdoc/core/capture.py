@@ -12,9 +12,7 @@ Every public function returns plain Python dicts/lists for JSON serialisation.
 from __future__ import annotations
 
 import os
-import struct
-import json
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 # ---------------------------------------------------------------------------
 # Import renderdoc – gracefully degrade if unavailable

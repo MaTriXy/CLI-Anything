@@ -171,6 +171,13 @@ def _resolve_stage(stage_name: str):
     return STAGE_MAP.get(stage_name.lower())
 
 
+def _pso_for_stage(pipe, stage):
+    """PSO handle for DisassembleShader / GetCBufferVariableContents (compute vs graphics)."""
+    if HAS_RD and stage == rd.ShaderStage.Compute:
+        return pipe.GetComputePipelineObject()
+    return pipe.GetGraphicsPipelineObject()
+
+
 # ---------------------------------------------------------------------------
 # Rasterizer / Blend / Depth-Stencil state extraction
 # ---------------------------------------------------------------------------
@@ -384,7 +391,7 @@ def get_shader_disasm(
     if refl is None:
         return {"error": "No shader bound at stage %s for event %d" % (stage_name, event_id)}
 
-    pso = pipe.GetGraphicsPipelineObject()
+    pso = _pso_for_stage(pipe, stage)
     enc_str = _get_encoding_str(refl)
     enc_info = _get_encoding_info(enc_str)
     raw = bytes(refl.rawBytes) if refl.rawBytes else b""
@@ -597,7 +604,7 @@ def get_cbuffer_contents(
     if cbuffer_index >= len(refl.constantBlocks):
         return {"error": f"CBuffer index {cbuffer_index} out of range (max {len(refl.constantBlocks) - 1})"}
 
-    pso = pipe.GetGraphicsPipelineObject()
+    pso = _pso_for_stage(pipe, stage)
     entry = pipe.GetShaderEntryPoint(stage)
     cb = pipe.GetConstantBlock(stage, cbuffer_index, 0)
 
@@ -903,7 +910,7 @@ def export_shader_reflection(
     if refl is None:
         return {"error": "No shader bound at stage %s for event %d" % (stage_name, event_id)}
 
-    pso = pipe.GetGraphicsPipelineObject()
+    pso = _pso_for_stage(pipe, stage)
     entry = pipe.GetShaderEntryPoint(stage)
 
     # Build output directory
@@ -1115,7 +1122,6 @@ def dump_pipeline_for_diff(controller, event_id: int) -> Dict[str, Any]:
 
     controller.SetFrameEvent(event_id, True)
     pipe = controller.GetPipelineState()
-    pso = pipe.GetGraphicsPipelineObject()
 
     stage_defs = [
         ("Vertex", rd.ShaderStage.Vertex),
@@ -1133,6 +1139,7 @@ def dump_pipeline_for_diff(controller, event_id: int) -> Dict[str, Any]:
         refl = pipe.GetShaderReflection(stage_enum)
         if refl is None:
             continue
+        pso = _pso_for_stage(pipe, stage_enum)
         entry = pipe.GetShaderEntryPoint(stage_enum)
         cb_bindings = stage_data.get("bindings", {}).get("constantBlocks", [])
         for cb_entry in cb_bindings:
@@ -1165,7 +1172,6 @@ def dump_pipeline(controller, event_id: int) -> Dict[str, Any]:
     """
     controller.SetFrameEvent(event_id, True)
     pipe = controller.GetPipelineState()
-    pso = pipe.GetGraphicsPipelineObject()
 
     pipeline_type = str(controller.GetAPIProperties().pipelineType)
 
@@ -1301,6 +1307,7 @@ def dump_pipeline(controller, event_id: int) -> Dict[str, Any]:
         refl = pipe.GetShaderReflection(stage_enum)
         if refl is None:
             continue
+        pso = _pso_for_stage(pipe, stage_enum)
         stage_data = {
             "shader": str(refl.resourceId),
             "entryPoint": str(refl.entryPoint),
