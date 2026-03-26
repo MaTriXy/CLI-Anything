@@ -314,6 +314,20 @@
       "contributor_url": "https://github.com/zhangxilong-43"
     },
     {
+      "name": "freecad",
+      "display_name": "FreeCAD",
+      "version": "1.1.0",
+      "description": "Parametric 3D CAD modeling via FreeCAD CLI (258 commands: Part, Sketcher, PartDesign, Assembly, Mesh, TechDraw, Draft, FEM, CAM, and more)",
+      "requires": "FreeCAD >= 1.1 (freecad.org)",
+      "homepage": "https://www.freecad.org",
+      "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=freecad/agent-harness",
+      "entry_point": "cli-anything-freecad",
+      "skill_md": "freecad/agent-harness/cli_anything/freecad/skills/SKILL.md",
+      "category": "3d",
+      "contributor": "AlexGabbia",
+      "contributor_url": "https://github.com/AlexGabbia"
+    },
+    {
       "name": "iterm2",
       "display_name": "iTerm2",
       "version": "1.0.0",
@@ -340,6 +354,18 @@
       "category": "network",
       "contributor": "galke",
       "contributor_url": "https://github.com/galke7"
+      "name": "renderdoc",
+      "display_name": "RenderDoc",
+      "version": "0.1.0",
+      "description": "GPU frame capture analysis: pipeline state, shader export, texture inspection, draw call browsing",
+      "requires": "renderdoc (Python bindings from RenderDoc installation)",
+      "homepage": "https://renderdoc.org",
+      "install_cmd": "pip install git+https://github.com/HKUDS/CLI-Anything.git#subdirectory=renderdoc/agent-harness",
+      "entry_point": "cli-anything-renderdoc",
+      "skill_md": "renderdoc/agent-harness/cli_anything/renderdoc/skills/SKILL.md",
+      "category": "graphics",
+      "contributor": "levishilf",
+      "contributor_url": "https://github.com/levishilf"
     }
   ]
 }
