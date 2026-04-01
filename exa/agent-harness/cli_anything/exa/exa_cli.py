@@ -301,9 +301,6 @@ def repl() -> None:
             pass
         except Exception as exc:  # noqa: BLE001
             _err(str(exc))
-        finally:
-            global _json_output
-            _json_output = False
 
 
 # ---------------------------------------------------------------------------
