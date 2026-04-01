@@ -39,6 +39,7 @@
 !/inkscape/
 !/audacity/
 !/libreoffice/
+!/zotero/
 !/mubu/
 !/obs-studio/
 !/kdenlive/
@@ -59,6 +60,7 @@
 !/iterm2/
 !/rms/
 !/renderdoc/
+!/cloudcompare/
 
 # Step 5: Inside each software dir, ignore everything (including dotfiles)
 /gimp/*
@@ -71,6 +73,8 @@
 /audacity/.*
 /libreoffice/*
 /libreoffice/.*
+/zotero/*
+/zotero/.*
 /mubu/*
 /mubu/.*
 /obs-studio/*
@@ -109,6 +113,8 @@
 /rms/.*
 /renderdoc/*
 /renderdoc/.*
+/cloudcompare/*
+/cloudcompare/.*
 
 # Step 6: ...except agent-harness/
 !/gimp/agent-harness/
@@ -116,6 +122,7 @@
 !/inkscape/agent-harness/
 !/audacity/agent-harness/
 !/libreoffice/agent-harness/
+!/zotero/agent-harness/
 !/mubu/agent-harness/
 !/obs-studio/agent-harness/
 !/kdenlive/agent-harness/
@@ -136,6 +143,7 @@
 !/iterm2/agent-harness/
 !/rms/agent-harness/
 !/renderdoc/agent-harness/
+!/cloudcompare/agent-harness/
 
 # Step 7: Ignore build artifacts within allowed dirs
 **/__pycache__/
@@ -171,3 +179,5 @@ assets/gen_typing_gif.py
 /notebooklm/*
 /notebooklm/.*
 !/notebooklm/agent-harness/
+!/intelwatch/agent-harness/
+!/intelwatch/
